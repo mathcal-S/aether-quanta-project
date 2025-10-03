@@ -1,4 +1,3 @@
-import os
 import subprocess
 import json
 import numpy as np
@@ -14,6 +13,7 @@ class TermuxAPI:
         self.R = np.eye(9) * 0.1  # Measurement noise
         self.phi = (1 + np.sqrt(5)) / 2
         self.rnn_weights = np.random.rand(12, 12)  # Mock RNN for prediction
+        self.rnn_h = np.zeros(12)  # RNN hidden state
 
     def run_termux_command(self, cmd_args):
         try:
@@ -47,7 +47,8 @@ class TermuxAPI:
         self.R = np.eye(9) * (0.1 + np.mean(sensor_vars) * 0.05)
 
         # RNN prediction for state transition (hybrid EKF-RNN)
-        self.state = self.rnn_weights @ self.state  # Mock RNN forecast
+        self.rnn_h = np.tanh(self.rnn_weights @ self.rnn_h + self.state)
+        self.state = self.rnn_h  # RNN forecast
 
         # EKF prediction
         F = np.eye(12)
@@ -68,7 +69,7 @@ class TermuxAPI:
         fqc = (1 + self.phi * np.pi * 0.5 * d_ent) * np.cos(0.5)
         return {"state": self.state.tolist(), "covariance": self.P.diagonal().tolist(), "fqc": fqc}
 
-    # Other methods unchanged from prior response
+    # Other methods (take_photo, record_audio, etc.) unchanged from prior
 
 if __name__ == "__main__":
     api = TermuxAPI()
