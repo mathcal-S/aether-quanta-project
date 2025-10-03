@@ -1,0 +1,36 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - name: Install Dependencies
+      run: pip install -r requirements.txt pytest
+    - name: Run Pytest
+      run: pytest tests/
+
+  deploy-mainnet:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Deploy Cardano Contract
+      env:
+        CARDANO_WALLET_ADDRESS: ${{ secrets.CARDANO_WALLET_ADDRESS }}
+        CARDANO_PRIVATE_KEY: ${{ secrets.CARDANO_PRIVATE_KEY }}
+      run: |
+        cd deployment
+        chmod +x deploy_cardano.sh
+        ./deploy_cardano.sh
