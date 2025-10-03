@@ -1,0 +1,8 @@
+.env
+__pycache__/
+*.pyc
+nfts/*.mp4
+nfts/*.json
+*.egg-info/
+.pytest_cache/
+signals/*.wav
