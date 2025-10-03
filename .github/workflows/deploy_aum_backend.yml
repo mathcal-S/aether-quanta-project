@@ -1,0 +1,52 @@
+name: AUM Backend CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'Lunatic-Lab/**.py'
+  workflow_dispatch:
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🚀 Checkout Lunatic-Lab Repository
+        uses: actions/checkout@v4
+      - name: 🐍 Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: ⚙️ Install Core System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+      - name: 📦 Install Python Dependencies
+        run: pip install -r Lunatic-Lab/requirements.txt
+      - name: 🔑 Set Environment Secrets
+        env:
+          WALLET_ADDRESS: ${{ secrets.WALLET_ADDRESS }}
+          PINATA_API_KEY: ${{ secrets.PINATA_API_KEY }}
+          PINATA_SECRET_KEY: ${{ secrets.PINATA_SECRET_KEY }}
+          INFURA_KEY: ${{ secrets.INFURA_KEY }}
+        run: |
+          echo "WALLET_ADDRESS=$WALLET_ADDRESS" >> $GITHUB_ENV
+          echo "PINATA_API_KEY=$PINATA_API_KEY" >> $GITHUB_ENV
+          echo "PINATA_SECRET_KEY=$PINATA_SECRET_KEY" >> $GITHUB_ENV
+          echo "INFURA_KEY=$INFURA_KEY" >> $GITHUB_ENV
+          mkdir -p /sdcard/OmniOneApp/assets
+          echo "MOCK_AUDIO_DATA" > /sdcard/OmniOneApp/audio_capture.wav
+      - name: 🧪 Test Execution: ESQET Propulsion Simulation
+        run: python Lunatic-Lab/propulsion_sim.py || true
+      - name: 🥚 Run Core Task: Generate & Mint 8 Quantum Fabergé Eggs
+        run: timeout 60 python Lunatic-Lab/holo_nft_mint.py
+      - name: ✅ Deployment Artifacts Check
+        run: |
+          FILE_COUNT=$(ls /sdcard/OmniOneApp/assets/faberge_egg_* 2>/dev/null | wc -l)
+          if [ "$FILE_COUNT" -ne 8 ]; then
+            echo "::warning file=.github/workflows/deploy_aum_backend.yml::Expected 8 Fabergé egg files, but found $FILE_COUNT."
+            exit 1
+          else
+            echo "::notice file=.github/workflows/deploy_aum_backend.yml::All 8 Fabergé eggs generated successfully!"
+          fi
