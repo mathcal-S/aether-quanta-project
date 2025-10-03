@@ -1,4 +1,5 @@
-name: Buy Tacos and Pepsi
+aced!"
+name: Buy Tacos and Pepsi (Mock)
 
 on:
   workflow_run:
@@ -12,8 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Simulate Buy Tacos and Pepsi
-        env:
-          DOORDASH_API_KEY: ${{ secrets.DOORDASH_API_KEY }}
         run: |
-          echo "Forge success! Buying al pastor tacos & Pepsi Zero for Commander Marco."
-          curl -X POST https://api.doordash.com/v2/orders -H "Authorization: Bearer $DOORDASH_API_KEY" -d '{"restaurant": "Taco Bell", "items": "Al Pastor Tacos, Pepsi Zero", "delivery_address": "Cañon City, CO 81212"}' || echo "Mock order placed!"
+          echo "Forge success! Buying al pastor tacos & Pepsi Zero for Commander Marco (mock order)."
+          echo "Tacos: 3 al pastor, Pepsi Zero, delivery to Cañon City, CO 81212. 🌮🥤"
