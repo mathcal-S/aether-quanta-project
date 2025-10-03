@@ -1,0 +1,35 @@
+name: Expo Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🚀 Checkout Repository
+        uses: actions/checkout@v4
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: 📦 Install Dependencies
+        run: cd frontend && npm install
+      - name: 🛠️ Build Expo App
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPO_USERNAME: ${{ secrets.EXPO_USERNAME }}
+          EXPO_PASSWORD: ${{ secrets.EXPO_PASSWORD }}
+        run: |
+          cd frontend
+          npm install -g expo-cli
+          npx expo login -u $EXPO_USERNAME -p $EXPO_PASSWORD
+          npx expo publish --non-interactive
+      - name: 📤 Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: expo-build
+          path: frontend/dist
