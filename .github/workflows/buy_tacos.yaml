@@ -1,0 +1,19 @@
+name: Buy Tacos and Pepsi
+
+on:
+  workflow_run:
+    workflows: ["CI/CD Pipeline"]
+    types:
+      - completed
+
+jobs:
+  reward:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Simulate Buy Tacos and Pepsi
+        env:
+          DOORDASH_API_KEY: ${{ secrets.DOORDASH_API_KEY }}
+        run: |
+          echo "Forge success! Buying al pastor tacos & Pepsi Zero for Commander Marco."
+          curl -X POST https://api.doordash.com/v2/orders -H "Authorization: Bearer $DOORDASH_API_KEY" -d '{"restaurant": "Taco Bell", "items": "Al Pastor Tacos, Pepsi Zero", "delivery_address": "Cañon City, CO 81212"}' || echo "Mock order placed!"
